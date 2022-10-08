@@ -1,30 +1,10 @@
 script_author("THERION")
 
+local BONES = nil
 local WEAPON_DATA = nil
-local PLAYER_IN_SCOPE_CAMERA_MODES = {
-  [7] = "MODE_SNIPER",
-  [8] = "MODE_ROCKETLAUNCHER",
-  [46] = "MODE_CAMERA",
-  [51] = "MODE_ROCKETLAUNCHER_HS",
-}
+local PLAYER_IN_SCOPE_CAMERA_MODES = nil
 
 local settings = {
-  radius = {
-    HANDGUN = 30,
-    SUBMACHINE = 15,
-    SHOTGUN = 30,
-    RIFLE = 15,
-  }
-  chance = 35,
-
-  color_filter = false,
-  wall_filter = true,
-  distance_filter = true,
-
-  driver_filter = false,
-  focus_drivers = true,
-
-  draw_radius = true,
 }
 
 local ffi = require("ffi")
@@ -60,7 +40,7 @@ local function get_bone_position_3d(ped, bone_id)
   return vec[0], vec[1], vec[2]
 end
 
-local function foreach_valid_enemy_in_stream(callback)
+local function foreach_potential_target(callback)
   local all_chars = getAllChars()
 
   for _, potential_target in ipairs(all_chars) do
@@ -85,7 +65,15 @@ local function foreach_valid_enemy_in_stream(callback)
   end
 end
 
-/*
+local function foreach_valid_driver(callback)
+  foreach_potential_target(function(potential_target)
+    if not isCharInAnyCar(potential_target) then
+      return
+    end
+  end)
+end
+
+--[[
 if color_filter && sampGetPlayerColor(potential_target_id) == sampGetPlayerColor(local_player_id) then
   goto next
 end
@@ -103,29 +91,34 @@ local is_los_clear = isLineOfSightClear(
 if not is_los_clear then
   goto next
 end
-*/
+]]
 
 local function on_before_init()
   math.randomseed(os.time())
 end
 
 local function on_init()
-  sampRegisterChatCommand('enemies', function()
-    foreach_valid_enemy_in_stream(function(enemy)
-      const _, id = sampGetPlayerIdByCharHandle(enemy)
-      print(id)
-      return false
-    end)
-  end)
 end
 
 local function on_every_frame()
-  if not draw_radius then
+  foreach_potential_target(function(potential_target)
+    do
+      local bone_x, bone_y = convert3DCoordsToScreen(get_bone_position_3d(potential_target, 8))
+      renderDrawPolygon(bone_x, bone_y, 4, 4, 4, 0, 0xFFFFFFFF)
+    end
+    do
+      local bone_x, bone_y = convert3DCoordsToScreen(get_bone_position_3d(potential_target, 5))
+      renderDrawPolygon(bone_x, bone_y, 4, 4, 4, 0, 0xFFFFFFFF)
+    end
+    return false
+  end)
+  
+  if not settings.draw_radius then
     return
   end
 
   local crosshair_x, crosshair_y = get_crosshair_position_2d()
-  renderDrawPolygon(crosshair_x, crosshair_y, settings.radius_handgun, settings.radius_handgun, 24, 0, 0x8000C000)
+  renderDrawPolygon(crosshair_x, crosshair_y, settings.radius.HANDGUN, settings.radius.HANDGUN, 24, 0, 0x8000C000)
 end
 
 local function on_send_bullet_sync()
@@ -151,6 +144,32 @@ local function create_weapon_data_entry(type, range, damage)
   return { type = type, range = range, damage = damage }
 end
 
+settings = {
+  radius = {
+    HANDGUN = 30,
+    SUBMACHINE = 15,
+    SHOTGUN = 30,
+    RIFLE = 15,
+  },
+  chance = 35,
+  color_filter = false,
+  wall_filter = true,
+  distance_filter = true,
+  driver_filter = false,
+  focus_drivers = true,
+  draw_radius = true,
+}
+
+PLAYER_IN_SCOPE_CAMERA_MODES = {
+  [7] = "MODE_SNIPER",
+  [8] = "MODE_ROCKETLAUNCHER",
+  [46] = "MODE_CAMERA",
+  [51] = "MODE_ROCKETLAUNCHER_HS",
+}
+BONES = {
+  [31] = "Chest",
+  [5] = "Head",
+}
 WEAPON_DATA = {
   [22] = create_weapon_data_entry("HANDGUN", 35.0, 8.25),
   [23] = create_weapon_data_entry("HADNGUN", 35.0, 13.2),
