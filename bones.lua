@@ -2,7 +2,7 @@ local ffi = require("ffi")
 
 local bones = {}
 
-local bonesIds = {
+local boneId = {
       SPINE = 3,
       NECK = 5,
       RIGHT_EYE = 7,
@@ -16,6 +16,11 @@ local bonesIds = {
       RIGHT_KNEE = 52,
 }
 
+bones.list = {}
+for _, id in pairs(boneId) do
+      table.insert(bones.list, id)
+end
+
 local getBonePosition = ffi.cast("int (__thiscall*)(void*, float*, int, bool)", 0x5E4280)
 
 function bones.getBonePosition3D(ped, boneId)
@@ -27,8 +32,8 @@ function bones.getBonePosition3D(ped, boneId)
 end
 
 function bones.getHeadPosition3D(ped)
-      local rightEye = getBonePosition3d(ped, bonesIds.RIGHT_EYE)
-      local leftEye = getBonePosition3d(ped, boneIDs.LEFT_EYE)
+      local rightEye = getBonePosition3d(ped, boneId.RIGHT_EYE)
+      local leftEye = getBonePosition3d(ped, boneId.LEFT_EYE)
 
       return (leftEye + rightEye) * 0.5
 end
@@ -44,7 +49,24 @@ local processLineOfSightOptions = {
       objectsYouCanShootThrough = false,
 }
 
-function bones.isInLineOfSight(ped, bonedId)
+function bones.isHeadInLineOfSight(ped)
+      local camera = vector3D(getActiveCameraCoordinates())
+      local head = bones.getHeadPosition3D(ped, bonedId)
+
+      return processLineOfSight(
+            camera.x, camera.y, camera.z,
+            head.x, head.y, head.z,
+            options.checkIfSolid,
+            options.vehicles,
+            options.pedestrians,
+            options.particles,
+            options.seeThroughObjects,
+            options.ignoreSomeObjects,
+            options.objectsYouCanShootThrough
+      )
+end
+
+function bones.isBoneInLineOfSight(ped, bonedId)
       local camera = vector3D(getActiveCameraCoordinates())
       local bone = bones.getBonePosition3D(ped, bonedId)
 

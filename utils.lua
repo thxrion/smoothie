@@ -14,6 +14,35 @@ function arrayFind(haystack, needle)
                   return true
             end
       end
-      
+
       return false
+end
+
+local processLineOfSightOptions = {
+      checkIfSolid = true,
+      vehicles = true,
+      pedestrians = false,
+      objects = true,
+      particles = false,
+      seeThroughObjects = false,
+      ignoreSomeObjects = false,
+      objectsYouCanShootThrough = false,
+}
+
+function isPointInLineOfSight(point, options)
+      options = options or processLineOfSightOptions
+
+      local camera = vector3D(getActiveCameraCoordinates())
+
+      return processLineOfSight(
+            camera.x, camera.y, camera.z,
+            point.x, point.y, point.z,
+            options.checkIfSolid,
+            options.vehicles,
+            options.pedestrians,
+            options.particles,
+            options.seeThroughObjects,
+            options.ignoreSomeObjects,
+            options.objectsYouCanShootThrough
+      )
 end
