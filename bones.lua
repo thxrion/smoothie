@@ -1,4 +1,5 @@
 local ffi = require("ffi")
+local vector3D = require("vector3D")
 
 local bones = {}
 
@@ -16,6 +17,8 @@ local boneId = {
       RIGHT_KNEE = 52,
 }
 
+bones.enum = boneId
+
 bones.list = {}
 for _, id in pairs(boneId) do
       table.insert(bones.list, id)
@@ -32,8 +35,8 @@ function bones.getBonePosition3D(ped, boneId)
 end
 
 function bones.getHeadPosition3D(ped)
-      local rightEye = getBonePosition3d(ped, boneId.RIGHT_EYE)
-      local leftEye = getBonePosition3d(ped, boneId.LEFT_EYE)
+      local rightEye = bones.getBonePosition3D(ped, boneId.RIGHT_EYE)
+      local leftEye = bones.getBonePosition3D(ped, boneId.LEFT_EYE)
 
       return (leftEye + rightEye) * 0.5
 end

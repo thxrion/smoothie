@@ -46,7 +46,14 @@ weapon.range = {
 
 function weapon.isAimable()
       local weaponId = getCurrentCharWeapon(PLAYER_PED)
-      return arrayFind(weapon.aimable, weaponId)
+
+      for i = 1, #weapon.aimable do
+            if weapon.aimable[i] == weaponId then
+                  return true
+            end
+      end
+
+      return false
 end
 
 function weapon.getType()

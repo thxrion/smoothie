@@ -4,19 +4,31 @@ SAMemory.require("CCamera")
 
 local camera = {}
 
-local CENTERED_CROSSHAIR_AIMING_MODES = {
+local THIRD_PERSON_AIMING_MODES = {
+      [0x35] = "MODE_AIMWEAPON",
+      [0x37] = "MODE_AIMWEAPON_FROMCAR",
+      [0x41] = "MODE_AIMWEAPON_ATTACHED",
+}
+   
+local FIRST_PERSON_AIMING_MODES = {
       [0x7] = "MODE_SNIPER",
       [0x8] = "MODE_ROCKETLAUNCHER",
       [0x33] = "MODE_ROCKETLAUNCHER_HS",
 }
+   
 
 function camera.getCoordinates3D()
       return vector3D(getActiveCameraCoordinates())
 end
 
-function camera.isCrosshairCentered()
+function camera.isAimingFirstPerson()
       local cameraMode = tonumber(SAMemory.camera.aCams[0].nMode)
-      return CENTERED_CROSSHAIR_AIMING_MODES[cameraMode]
+      return FIRST_PERSON_AIMING_MODES[cameraMode]
+end
+
+function camera.isAimingThirdPerson()
+      local cameraMode = tonumber(SAMemory.camera.aCams[0].nMode)
+      return THIRD_PERSON_AIMING_MODES[cameraMode]
 end
 
 function camera.getCenterOfScreenCoordinates2D()
@@ -67,18 +79,18 @@ local function setCameraRotation(phi, theta)
 end
 
 local function getCrosshairRotation()
-      if camera.isCrosshairCentered() then
+      if camera.isAimingFirstPerson() then
             return getCameraRotation()
       end
 
       local crosshairOnScreenX, crosshairOnScreenY = camera.getCrosshairM16Coordinates2D()
       local crosshair = camera.convertScreenCoordinatesToWorld3D(crosshairOnScreenX, crosshairOnScreenY)
 
-      return camera.convertCartesianCoordinatesToSpherical(crosshair)
+      return convertCartesianCoordinatesToSpherical(crosshair)
 end
 
 function camera.moveCrosshairTowardsPoint(point, k)
-      local pointPhi, pointTheta = camera.convertCartesianCoordinatesToSpherical(point)
+      local pointPhi, pointTheta = convertCartesianCoordinatesToSpherical(point)
       local cameraPhi, cameraTheta = getCameraRotation()
       local crosshairPhi, crosshairTheta = getCrosshairRotation()
 
