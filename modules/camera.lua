@@ -1,8 +1,11 @@
+local camera = {}
+
+do
+
 local vector3D = require("vector3d")
 local SAMemory = require("SAMemory")
 SAMemory.require("CCamera")
 
-local camera = {}
 
 local THIRD_PERSON_AIMING_MODES = {
       [0x35] = "MODE_AIMWEAPON",
@@ -140,4 +143,4 @@ function camera.moveCrosshairTowardsPoint(point, k)
       setCameraRotation(cameraPhi, cameraTheta)
 end
 
-return camera
+end

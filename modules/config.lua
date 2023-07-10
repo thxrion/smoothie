@@ -1,9 +1,10 @@
+local config = {}
+
+do
+
 local ffi = require("ffi")
 local imgui = require("mimgui")
 local windowsMessages = require("windows.message")
-
-local weapon = require("cheat.modules.weapon")
-local bone = require("cheat.modules.bone")
 
 local WEAPON_TYPE_NAMES = {
       [weapon.Type.HANDGUN] = "Handgun",
@@ -12,7 +13,7 @@ local WEAPON_TYPE_NAMES = {
       [weapon.Type.RIFLE] = "Rifle",
 }
 
-local config = {
+config = {
       toggleConfigMenuKey = 0x5A,
       isWindowOpen = imgui.new.bool(false),
 
@@ -123,4 +124,4 @@ function config.initWindow()
       imgui.OnFrame(getConfigWindowState, onDrawConfigWindow)
 end
 
-return config
+end

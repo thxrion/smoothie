@@ -1,42 +1,109 @@
+SCRIPT_NAME="smoothie"
+SCRIPT_AUTHOR="THERION"
+SCRIPT_DESCRIPTION="First ever non-cringe smooth aimbot"
+SCRIPT_URL="https://gitlab.com/modarnya"
 
-
-TARGET="script.lua"
 BUILD_DIRECTORY="build"
-ENTRY_POINT="./main.lua"
+ENTRY_POINT="modules/init.lua"
+LUAJIT="./luajit.exe"
 
-BUILD_PATH="$BUILD_DIRECTORY/$TARGET"
+BUILD_PATH="$BUILD_DIRECTORY/$SCRIPT_NAME.lua"
 
-mkdir -p "$BUILD_DIRECTORY"
-cp "$ENTRY_POINT" "$BUILD_PATH"
+escape() {
+    local string="$1"
 
-replace_import() {
-    local import_line=$1
+    string=${string//\\/\\\\} # Escape backslashes
+    string=${string//&/\\&} # Escape ampersands
+    string=${string//\"/\\\"} # Escape double quotes
+    string=${string//$'\n'/\\n} # Escape newlines
+    string=${string//$/\\$} # Escape dollar signs
+    string=${string//@/\\@} # Escape at symbols
 
-    local path="${line#*<}"
-    path="${path%>}"
-    local file_contents=$(cat "$path")
-
-    # Replace the import line with the file contents
-    sed -e "/$import_line/r $import_path" -e "/$import_line/d"
-    echo "$file_contents"
+    echo "$string"
 }
 
-grep -oE -- "-- @import[[:space:]]+<([^>]+)>" "$BUILD_PATH" | while read -r line; do
-    path="${line#*<}"
-    path="${path%>}"
+prepend() {
+    path="$1"
+    string="$2"
 
-    if [[ -f "$path" ]]; then
-        replaced_contents=$(replace_import "$line")
-        echo "$replaced_contents"
-        echo "111111111111\n\\n\n\n\n\n"
-        
-        ##replacement=$(sed -e 's/`/\\`/g' -e 's/\$/\\\$/g' -e 's/&/\\&/g' -e 's/"/\\"/g' -e 's/\\/\\\\/g' -e 's/#/\\#/g' <<< "$(cat "$path")")
-        ## replacement=$(sed -e 's/[\/&]/\\&/g' -e 's/"/\\"/g' -e 's/[$`!#]/\\&/g' -e 's/@/\\@/g' <<< "$(cat "$path")")
-        ##echo ${replacement} > log
+    tmp=$(mktemp)
+    echo "$string" > "$tmp"
+    cat "$path" >> "$tmp"
+    mv "$tmp" "$path"
+}
 
-        ##sed -i "s|${line}|{$replacement}|" "$BUILD_PATH"
-        # cat "$path" "$BUILD_PATH" > temp && mv temp "$BUILD_PATH"
-    else
-        echo "Module: '$path' does not exist"
-    fi
+build() {
+    mkdir -p "$BUILD_DIRECTORY"
+    cp "$ENTRY_POINT" "$BUILD_PATH"
+
+    grep -oE -- "-- @import[[:space:]]+<([^>]+)>" "$BUILD_PATH" | while read -r line; do
+        path="${line#*<}"
+        path="${path%>}"
+
+        if [[ -f "$path" ]]; then
+            replacement=$(escape "$(cat "$path")")
+            # echo "$replacement" > "bundle.log"
+            sed -z -i "s|${line}|$replacement|" "$BUILD_PATH"
+        else
+            echo "Module: '$path' does not exist"
+        fi
+    done
+}
+
+display_usage() {
+    echo "The Goofy aah bundler🤪 gives you these options:"
+    echo "  --help          🧙 Display this help message"
+    echo "  --build:release 👷 Build the project in release mode"
+    echo "  --build:debug   🐞 Build the project in debug mode"
+    echo "  --clean         🧹 Clean your build directory"
+}
+
+clean() {
+    rm -rf "$BUILD_DIRECTORY"
+}
+
+build_release() {
+    build
+
+    prepend $BUILD_PATH "script_name(\"$SCRIPT_NAME\")"
+    prepend $BUILD_PATH "script_author(\"$SCRIPT_AUTHOR\")"
+    prepend $BUILD_PATH "script_description(\"$SCRIPT_DESCRIPTION\")"
+    prepend $BUILD_PATH "script_url(\"$SCRIPT_URL\")"
+
+    cd luajit
+    ${LUAJIT} -b "../${BUILD_PATH}" "../${BUILD_PATH}"
+}
+
+build_debug() {
+    build
+}
+
+if [[ $# -eq 0 ]]; then
+    echo "No arguments provided. Use --help for usage information."
+    exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help)
+            display_usage
+            exit 0
+            ;;
+        --build:release)
+            build_release
+            exit 0
+            ;;
+        --build:debug)
+            build_debug
+            exit 0
+            ;;
+        --clean)
+            clean
+            exit 0
+            ;;
+        *)
+            echo "Invalid option: $1. Use --help for usage information."
+            exit 1
+            ;;
+    esac
 done

@@ -1,12 +1,3 @@
--- @import <./modules/common.lua>
--- @import <./modules/bone.lua>
--- @import <./modules/camera.lua>
--- @import <./modules/weapon.lua>
-
--- @import <./config.lua>
-
--- @import <./poo>
-
 require("moonloader")
 -- you might wonder, why require("mimgui") and not even use it?
 -- try removing the line, you'll get a
@@ -14,12 +5,12 @@ require("moonloader")
 -- for some unknown reason
 require("mimgui")
 
-require("cheat.modules.common")
-local camera = require("cheat.modules.camera")
-local weapon = require("cheat.modules.weapon")
-local bone = require("cheat.modules.bone")
+-- @import <./modules/common.lua>
+-- @import <./modules/bone.lua>
+-- @import <./modules/camera.lua>
+-- @import <./modules/weapon.lua>
 
-local config = require("cheat.config")
+-- @import <./modules/config.lua>
 
 local function isPedValidAsTarget(ped)
       if not doesCharExist(ped) then

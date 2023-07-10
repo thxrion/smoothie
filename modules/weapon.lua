@@ -1,22 +1,24 @@
-local memory = require("memory")
-
 local weapon = {}
 
+do
+
+local memory = require("memory")
+
 weapon.FireArm = {
-	COLT45 = 22,
-	SILENCED = 23,
-	DESERTEAGLE = 24,
-	SHOTGUN = 25,
-	SAWNOFFSHOTGUN = 26,
-	COMBATSHOTGUN = 27,
-	UZI = 28,
-	MP5 = 29,
-	AK47 = 30,
-	M4 = 31,
-	TEC9 = 32,
-	RIFLE = 33,
-	SNIPERRIFLE = 34,
-	MINIGUN = 38,
+      COLT45 = 22,
+      SILENCED = 23,
+      DESERTEAGLE = 24,
+      SHOTGUN = 25,
+      SAWNOFFSHOTGUN = 26,
+      COMBATSHOTGUN = 27,
+      UZI = 28,
+      MP5 = 29,
+      AK47 = 30,
+      M4 = 31,
+      TEC9 = 32,
+      RIFLE = 33,
+      SNIPERRIFLE = 34,
+      MINIGUN = 38,
 }
 
 weapon.Type = {
@@ -78,4 +80,4 @@ function weapon.resetSpread()
       weapon.setSpread(100)
 end
 
-return weapon
+end

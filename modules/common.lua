@@ -1,3 +1,5 @@
+do
+
 local vector3D = require("vector3D")
 
 function getCharCoordinates3D(...)
@@ -31,4 +33,6 @@ function clamp(value, min, max)
       end
 
       return value
+end
+
 end

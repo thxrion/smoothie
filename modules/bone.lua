@@ -1,7 +1,9 @@
+local bone = {}
+
+do
+
 local ffi = require("ffi")
 local vector3D = require("vector3D")
-
-local bone = {}
 
 bone.Type = {
       SPINE = 3,
@@ -34,4 +36,4 @@ function bone.getHeadPosition3D(ped)
       return (leftEye + rightEye) * 0.5
 end
 
-return bone
+end
