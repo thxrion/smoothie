@@ -9,16 +9,56 @@ local THIRD_PERSON_AIMING_MODES = {
       [0x37] = "MODE_AIMWEAPON_FROMCAR",
       [0x41] = "MODE_AIMWEAPON_ATTACHED",
 }
-   
+
 local FIRST_PERSON_AIMING_MODES = {
       [0x7] = "MODE_SNIPER",
       [0x8] = "MODE_ROCKETLAUNCHER",
       [0x33] = "MODE_ROCKETLAUNCHER_HS",
 }
-   
+
+local PROCESS_LINE_OF_SIGHT_OPTIONS = {
+      checkIfSolid = true,
+      vehicles = true,
+      pedestrians = true,
+      objects = true,
+      particles = false,
+      seeThroughObjects = false,
+      ignoreSomeObjects = false,
+      objectsYouCanShootThrough = false,
+}
 
 function camera.getCoordinates3D()
       return vector3D(getActiveCameraCoordinates())
+end
+
+function camera.isPointInLineOfSight(point, options)
+      options = options or PROCESS_LINE_OF_SIGHT_OPTIONS
+
+      local camera = camera.getCoordinates3D()
+
+      return processLineOfSight(
+            camera.x, camera.y, camera.z,
+            point.x, point.y, point.z,
+            options.checkIfSolid,
+            options.vehicles,
+            options.pedestrians,
+            options.particles,
+            options.seeThroughObjects,
+            options.ignoreSomeObjects,
+            options.objectsYouCanShootThrough
+      )
+end
+
+function camera.getScreenDistanceBetweenCrosshairAndPoint3D(point)
+      local pointX, pointY = convert3DCoordsToScreen(point.x, point.y, point.z)
+
+      if camera.isAimingFirstPerson() then
+            local centerX, centerY = camera.getCenterOfScreenCoordinates2D()
+            return getDistanceBetweenCoords2d(centerX, centerY, pointX, pointY)
+      end
+
+      local crosshairX, crosshairY = camera.getCrosshairM16Coordinates2D()
+      return getDistanceBetweenCoords2d(crosshairX, crosshairY, pointX, pointY)
 end
 
 function camera.isAimingFirstPerson()

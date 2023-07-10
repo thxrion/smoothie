@@ -1,101 +1,25 @@
--- TODO: rename all the enums properly
--- TODO: add other types of guns and map through them
--- TODO: limit inputs
+-- @import <./modules/common.lua>
+-- @import <./modules/bone.lua>
+-- @import <./modules/camera.lua>
+-- @import <./modules/weapon.lua>
 
-local ffi = require("ffi")
-local vector3D = require("vector3d")
-local imgui = require("mimgui")
-local windowsMessages = require("windows.message")
+-- @import <./config.lua>
 
-local camera = require("cheat.camera")
-local weapon = require("cheat.weapon")
-local bones = require("cheat.bones")
+-- @import <./poo>
 
+require("moonloader")
+-- you might wonder, why require("mimgui") and not even use it?
+-- try removing the line, you'll get a
+-- GTA\moonloader\lib\mimgui\init.lua:77: attempt to call field 'ImFontGlyphRangesBuilder' (a nil value)
+-- for some unknown reason
+require("mimgui")
 
-local configWindowState = imgui.new.bool(false)
-local config = {
-      toggleConfigurationMenuKey = 0x5A,
+require("cheat.modules.common")
+local camera = require("cheat.modules.camera")
+local weapon = require("cheat.modules.weapon")
+local bone = require("cheat.modules.bone")
 
-      isEnabled = imgui.new.bool(true),
-      doesAimingRequireFireButtonPress = imgui.new.bool(false),
-      areDriversPrioritized = imgui.new.bool(true),
-      shouldPedBeInLineOfSight = imgui.new.bool(true),
-      shouldPedBeInRange = imgui.new.bool(false),
-      shouldPedHaveOtherColor = imgui.new.bool(true),
-
-      weaponTypeSpecific = {
-            [weapon.types.LIGHT] = {
-                  radius = imgui.new.int(40),
-                  smoothness = imgui.new.float(1),
-                  spread = imgui.new.float(100),
-            },
-            [weapon.types.HEAVY] = {
-                  radius = imgui.new.int(15),
-                  smoothness = imgui.new.float(1),
-                  spread = imgui.new.float(100),
-            },
-      },
-}
-
-
-local processLineOfSightOptions = {
-      checkIfSolid = true,
-      vehicles = true,
-      pedestrians = true,
-      objects = true,
-      particles = false,
-      seeThroughObjects = false,
-      ignoreSomeObjects = false,
-      objectsYouCanShootThrough = false,
-}
-
-local function isPointInLineOfSight(point, options)
-      options = options or processLineOfSightOptions
-
-      local camera = camera.getCoordinates3D()
-
-      return processLineOfSight(
-            camera.x, camera.y, camera.z,
-            point.x, point.y, point.z,
-            options.checkIfSolid,
-            options.vehicles,
-            options.pedestrians,
-            options.particles,
-            options.seeThroughObjects,
-            options.ignoreSomeObjects,
-            options.objectsYouCanShootThrough
-      )
-end
-
-local function isPedInRange(ped, range)
-      local localCoordinates = vector3D(getCharCoordinates(PLAYER_PED))
-      local pedCoordinates = vector3D(getCharCoordinates(ped))
-
-      local distance = getDistanceBetweenCoords3d(
-            localCoordinates.x, localCoordinates.y, localCoordinates.z,
-            pedCoordinates.x, pedCoordinates.y, pedCoordinates.z
-      )
-
-      return distance <= range
-end
-
-local function doesPlayerHaveSameColor(playerId)
-      local _, localPlayerId = sampGetPlayerIdByCharHandle(PLAYER_PED)
-      return sampGetPlayerColor(playerId) == sampGetPlayerColor(localPlayerId)
-end
-
-local function getScreenDistanceBetweenCrosshairAndPoint3D(point)
-      local pointX, pointY = convert3DCoordsToScreen(point.x, point.y, point.z)
-
-      if camera.isAimingFirstPerson() then
-            local centerX, centerY = camera.getCenterOfScreenCoordinates2D()
-            return getDistanceBetweenCoords2d(centerX, centerY, pointX, pointY)
-      end
-
-      local crosshairX, crosshairY = camera.getCrosshairM16Coordinates2D()
-
-      return getDistanceBetweenCoords2d(crosshairX, crosshairY, pointX, pointY)
-end
+local config = require("cheat.config")
 
 local function isPedValidAsTarget(ped)
       if not doesCharExist(ped) then
@@ -135,7 +59,7 @@ local function searchForTargetAmongDrivers()
       local coordinates = nil
       local minDistance = math.huge
 
-      local weaponType = weapon.getType()
+      local weaponConfig = config.getWeaponConfig()
       local vehicles = getAllVehicles()
 
       for i = 1, #vehicles do
@@ -145,15 +69,15 @@ local function searchForTargetAmongDrivers()
                   goto continue
             end
 
-            local head = bones.getHeadPosition3D(driver)
+            local head = bone.getHeadPosition3D(driver)
 
-            if config.shouldPedBeInLineOfSight[0] and not isPointInLineOfSight(head) then
+            if config.shouldPedBeInLineOfSight[0] and not camera.isPointInLineOfSight(head) then
                   goto continue
             end
 
-            local distance = getScreenDistanceBetweenCrosshairAndPoint3D(head)
+            local distance = camera.getScreenDistanceBetweenCrosshairAndPoint3D(head)
 
-            if distance <= config.weaponTypeSpecific[weaponType].radius[0] and distance < minDistance then
+            if distance <= weaponConfig.radius[0] and distance < minDistance then
                   minDistance = distance
                   coordinates = head
             end
@@ -165,20 +89,19 @@ local function searchForTargetAmongDrivers()
 end
 
 local function searchForPedClosestValidBone(ped, minDistance)
-      local weaponType = weapon.getType()
-      local weaponConfig = config.weaponTypeSpecific[weaponType]
+      local weaponConfig = config.getWeaponConfig()
 
       local localMinDistance = minDistance
       local coordinates = nil
 
-      for j = 1, #bones.list do
-            local bone = bones.getBonePosition3D(ped, bones.list[j])
+      for j = 1, #config.bones do
+            local bone = bone.getBonePosition3D(ped, config.bones[j])
 
-            if config.shouldPedBeInLineOfSight[0] and not isPointInLineOfSight(bone) then
+            if config.shouldPedBeInLineOfSight[0] and not camera.isPointInLineOfSight(bone) then
                   goto continue
             end
 
-            local distance = getScreenDistanceBetweenCrosshairAndPoint3D(bone)
+            local distance = camera.getScreenDistanceBetweenCrosshairAndPoint3D(bone)
 
             if distance <= weaponConfig.radius[0] and distance < localMinDistance then
                   localMinDistance = distance
@@ -195,7 +118,6 @@ local function searchForTargetAmongPedestrians()
       local minDistance = math.huge
       local coordinates = nil
 
-      local weaponType = weapon.getType()
       local pedestrians = getAllChars()
 
       for i = 1, #pedestrians do
@@ -209,18 +131,7 @@ local function searchForTargetAmongPedestrians()
       return coordinates
 end
 
-local function onEveryFrame()
-      if not camera.isAimingFirstPerson() and not camera.isAimingThirdPerson() then
-            return
-      end
-      
-      if not weapon.isAimable() then
-            return
-      end
-
-      local weaponType = weapon.getType()
-      local weaponConfig = config.weaponTypeSpecific[weaponType]
-
+local function searchForTarget()
       local target = nil
 
       if config.areDriversPrioritized[0] then
@@ -231,11 +142,48 @@ local function onEveryFrame()
             target = searchForTargetAmongPedestrians()
       end
 
-      if target then
-            camera.moveCrosshairTowardsPoint(target, weaponConfig.smoothness[0])
+      return target
+end
+
+local function renderDebugRadiuses()
+      local x, y = camera.getCrosshairM16Coordinates2D()
+
+      for weaponType, weaponTypeId in pairs(weapon.Type) do
+            local weaponConfig = config.weaponTypeSpecific[weaponTypeId]
+
+            local diameter =  weaponConfig.radius[0] * 2
+            renderDrawPolygon(x, y, diameter, diameter, 40, 0, 0x30FFFFFF)
+      end
+end
+
+local function onEveryFrame()
+      if config.isWindowOpen[0] then
+            renderDebugRadiuses()
       end
 
+      if not camera.isAimingFirstPerson() and not camera.isAimingThirdPerson() then
+            return
+      end
+
+      if not weapon.getType() then
+            return
+      end
+
+      local weaponConfig = config.getWeaponConfig()
+
       weapon.setSpread(weaponConfig.spread[0])
+
+      if config.doesAimingRequireFireButtonPress[0] and not isKeyDown(VK_LBUTTON) then
+            return
+      end
+
+      local target = searchForTarget()
+
+      if not target then
+            return
+      end
+
+      camera.moveCrosshairTowardsPoint(target, weaponConfig.smoothness[0])
 end
 
 function onScriptTerminate(target)
@@ -246,63 +194,9 @@ function onScriptTerminate(target)
       weapon.resetSpread()
 end
 
-function onWindowMessage(message, wparam)
-      if message ~= windowsMessages.WM_KEYDOWN and message ~= windowsMessages.WM_SYSKEYDOWN then
-            return
-      end
-
-      if sampIsChatInputActive() or isSampfuncsConsoleActive() or sampIsDialogActive() then
-            return
-      end
-
-      if wparam ~= config.toggleConfigurationMenuKey then
-            return
-      end
-
-      configWindowState[0] = not configWindowState[0]
-end
-
-local function getConfigWindowState()
-      return configWindowState[0]
-end
-
-local function onDrawConfigurationWindow()
-      imgui.Begin("Configuration", configWindowState, imgui.WindowFlags.AlwaysAutoResize)
-
-      imgui.Checkbox("Enabled", config.isEnabled)
-
-      imgui.Text("Handguns")
-      imgui.InputInt("Radius##handguns", config.weaponTypeSpecific[weapon.types.LIGHT].radius)
-      imgui.InputFloat("Smoothness##handguns", config.weaponTypeSpecific[weapon.types.LIGHT].smoothness)
-
-      imgui.Text("Rifles")
-      imgui.InputInt("Radius##rifles", config.weaponTypeSpecific[weapon.types.HEAVY].radius)
-      imgui.InputFloat("Smoothness##rifles", config.weaponTypeSpecific[weapon.types.HEAVY].smoothness)
-
-
-      imgui.Checkbox("Lock only if `fire` is pressed", config.doesAimingRequireFireButtonPress)
-      imgui.Checkbox("Lock at drivers first", config.areDriversPrioritized)
-      imgui.Checkbox("Lock only at ones in line of sight", config.shouldPedBeInLineOfSight)
-      imgui.Checkbox("Lock only at ones in range of weapon", config.shouldPedBeInRange)
-      imgui.Checkbox("Lock only at ones of other color", config.shouldPedHaveOtherColor)
-
-      
-      imgui.Text("Increased weapon accuracy")
-
-      imgui.SliderFloat("Handguns accuracy %", config.weaponTypeSpecific[weapon.types.LIGHT].spread, 0, 100)
-      imgui.SliderFloat("Rifles accuracy %", config.weaponTypeSpecific[weapon.types.HEAVY].spread, 0, 100)
-
-      imgui.Button("Just a good ol` button", imgui.ImVec2(120, 20))
-
-      imgui.End()
-end
-
-local function onInit()
-      imgui.OnFrame(getConfigWindowState, onDrawConfigurationWindow)
-end
-
 function main()
-      onInit()
+      repeat wait(0) until isSampAvailable()
+      config.initWindow()
 
       while true do
             wait(0)
