@@ -114,8 +114,6 @@ local function onDrawConfigWindow()
       imgui.Checkbox("Exclude targets not in range of weapon", config.shouldPedBeInRange)
       imgui.Checkbox("Exclude targets of same color", config.shouldPedHaveOtherColor)
 
-      imgui.Button("Just a good ol` button")
-
       imgui.End()
 end
 
