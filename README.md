@@ -11,7 +11,9 @@ sh bundle.sh build:debug
 # debug build
 
 sh bundle.sh build:release
-# release build, requires luajit in project directory
+# release build, requires luajit
+# if on Linux, use `sudo apt-get install luajit`
+# if on Windows, put your luajit compiler in your project directory under `luajit`
 ```
 
 ## About
@@ -22,4 +24,4 @@ To open configuration menu use `Z` key
 
 ## Bugs
 
-If you encounter any bugs please create an Issue or reach me [Telegram](https://t.me/thxr1on)
+If you encounter any bugs please create an Issue or reach me: [Telegram](https://t.me/thxr1on)

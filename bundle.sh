@@ -5,9 +5,17 @@ SCRIPT_URL="https://gitlab.com/modarnya"
 
 BUILD_DIRECTORY="build"
 ENTRY_POINT="modules/init.lua"
-LUAJIT="./luajit.exe"
 
 BUILD_PATH="$BUILD_DIRECTORY/$SCRIPT_NAME.lua"
+
+compile() {
+    if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        luajit -b "./${BUILD_PATH}" "./${BUILD_PATH}"
+    else
+        cd luajit
+        ./luajit.exe -b "../${BUILD_PATH}" "../${BUILD_PATH}"
+    fi
+}
 
 escape() {
     local string="$1"
@@ -70,8 +78,7 @@ build_release() {
     prepend $BUILD_PATH "script_description(\"$SCRIPT_DESCRIPTION\")"
     prepend $BUILD_PATH "script_url(\"$SCRIPT_URL\")"
 
-    cd luajit
-    ${LUAJIT} -b "../${BUILD_PATH}" "../${BUILD_PATH}"
+    compile
 }
 
 build_debug() {
