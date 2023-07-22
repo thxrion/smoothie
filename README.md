@@ -22,4 +22,4 @@ To open configuration menu use `Z` key
 
 ## Bugs
 
-If you encounter any bugs please create an Issue or reach me [Telegram](at t.me/thxr1on)
+If you encounter any bugs please create an Issue or reach me [Telegram](https://t.me/thxr1on)
