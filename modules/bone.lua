@@ -6,6 +6,7 @@ local ffi = require("ffi")
 local vector3D = require("vector3D")
 
 bone.Type = {
+      RIGHT_WRIST = 24,
       SPINE = 3,
       NECK = 5,
       RIGHT_EYE = 7,

@@ -52,10 +52,10 @@ build() {
 
 display_usage() {
     echo "The Goofy aah bundler🤪 gives you these options:"
-    echo "  --help          🧙 Display this help message"
-    echo "  --build:release 👷 Build the project in release mode"
-    echo "  --build:debug   🐞 Build the project in debug mode"
-    echo "  --clean         🧹 Clean your build directory"
+    echo "  help          🧙 Display this help message"
+    echo "  build:release 👷 Build the project in release mode"
+    echo "  build:debug   🐞 Build the project in debug mode"
+    echo "  clean         🧹 Clean your build directory"
 }
 
 clean() {
@@ -85,19 +85,19 @@ fi
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --help)
+        help)
             display_usage
             exit 0
             ;;
-        --build:release)
+        build:release)
             build_release
             exit 0
             ;;
-        --build:debug)
+        build:debug)
             build_debug
             exit 0
             ;;
-        --clean)
+        clean)
             clean
             exit 0
             ;;

@@ -19,37 +19,8 @@ local FIRST_PERSON_AIMING_MODES = {
       [0x33] = "MODE_ROCKETLAUNCHER_HS",
 }
 
-local PROCESS_LINE_OF_SIGHT_OPTIONS = {
-      checkIfSolid = true,
-      vehicles = true,
-      pedestrians = true,
-      objects = true,
-      particles = false,
-      seeThroughObjects = false,
-      ignoreSomeObjects = false,
-      objectsYouCanShootThrough = false,
-}
-
 function camera.getCoordinates3D()
       return vector3D(getActiveCameraCoordinates())
-end
-
-function camera.isPointInLineOfSight(point, options)
-      options = options or PROCESS_LINE_OF_SIGHT_OPTIONS
-
-      local camera = camera.getCoordinates3D()
-
-      return processLineOfSight(
-            camera.x, camera.y, camera.z,
-            point.x, point.y, point.z,
-            options.checkIfSolid,
-            options.vehicles,
-            options.pedestrians,
-            options.particles,
-            options.seeThroughObjects,
-            options.ignoreSomeObjects,
-            options.objectsYouCanShootThrough
-      )
 end
 
 function camera.getScreenDistanceBetweenCrosshairAndPoint3D(point)
@@ -137,8 +108,8 @@ function camera.moveCrosshairTowardsPoint(point, k)
       local cameraPhi, cameraTheta = getCameraRotation()
       local crosshairPhi, crosshairTheta = getCrosshairRotation()
 
-      cameraPhi = cameraPhi + k * (pointPhi - crosshairPhi)
-      cameraTheta = cameraTheta + k * (pointTheta - crosshairTheta)
+      cameraPhi = cameraPhi + 1 / k * (pointPhi - crosshairPhi)
+      cameraTheta = cameraTheta + 1 / k * (pointTheta - crosshairTheta)
 
       setCameraRotation(cameraPhi, cameraTheta)
 end

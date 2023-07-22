@@ -9,6 +9,7 @@ require("mimgui")
 -- @import <./modules/bone.lua>
 -- @import <./modules/camera.lua>
 -- @import <./modules/weapon.lua>
+-- @import <./modules/collision.lua>
 
 -- @import <./modules/config.lua>
 
@@ -39,7 +40,7 @@ local function isPedValidAsTarget(ped)
             return false
       end
 
-      if config.shouldPedBeInRange[0] and getDistanceToPed(ped) > weapon.getRange() then
+      if config.shouldPedBeInRange[0] and not isPedInRange(ped, weapon.getRange()) then
             return false
       end
 
@@ -60,12 +61,11 @@ local function searchForTargetAmongDrivers()
                   goto continue
             end
 
-            local head = bone.getHeadPosition3D(driver)
-
-            if config.shouldPedBeInLineOfSight[0] and not camera.isPointInLineOfSight(head) then
+            if config.shouldPedBeInLineOfSight[0] and not collision.isDriverInLineOfSight(driver) then
                   goto continue
             end
 
+            local head = bone.getHeadPosition3D(driver)
             local distance = camera.getScreenDistanceBetweenCrosshairAndPoint3D(head)
 
             if distance <= weaponConfig.radius[0] and distance < minDistance then
@@ -86,17 +86,18 @@ local function searchForPedClosestValidBone(ped, minDistance)
       local coordinates = nil
 
       for j = 1, #config.bones do
-            local bone = bone.getBonePosition3D(ped, config.bones[j])
+            local boneId = config.bones[j]
+            local bonePosition = bone.getBonePosition3D(ped, boneId)
 
-            if config.shouldPedBeInLineOfSight[0] and not camera.isPointInLineOfSight(bone) then
+            if config.shouldPedBeInLineOfSight[0] and not collision.isPedBoneInLineOfSight(ped, boneId) then
                   goto continue
             end
 
-            local distance = camera.getScreenDistanceBetweenCrosshairAndPoint3D(bone)
+            local distance = camera.getScreenDistanceBetweenCrosshairAndPoint3D(bonePosition)
 
             if distance <= weaponConfig.radius[0] and distance < localMinDistance then
                   localMinDistance = distance
-                  coordinates = bone
+                  coordinates = bonePosition
             end
 
             ::continue::
