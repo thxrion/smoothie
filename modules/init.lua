@@ -1,10 +1,12 @@
-require("moonloader")
--- you might wonder, why require("mimgui") and not even use it?
--- try removing the line, you'll get a
--- GTA\moonloader\lib\mimgui\init.lua:77: attempt to call field 'ImFontGlyphRangesBuilder' (a nil value)
--- for some unknown reason
-require("mimgui")
+imgui = require("mimgui")
 
+require("moonloader")
+vector3D = require("vector3D")
+ffi = require("ffi")
+memory = require("memory")
+windowsMessages = require("windows.message")
+
+-- @import <./modules/cdefs.lua>
 -- @import <./modules/common.lua>
 -- @import <./modules/bone.lua>
 -- @import <./modules/camera.lua>
@@ -12,6 +14,7 @@ require("mimgui")
 -- @import <./modules/collision.lua>
 
 -- @import <./modules/config.lua>
+-- @import <./modules/gui.lua>
 
 local function isPedValidAsTarget(ped)
       if not doesCharExist(ped) then
@@ -188,7 +191,7 @@ end
 
 function main()
       repeat wait(0) until isSampAvailable()
-      config.initWindow()
+      initConfigWindow()
 
       while true do
             wait(0)
