@@ -6,11 +6,11 @@ mimgui, see [github.com/THE-FYP/mimgui](https://github.com/THE-FYP/mimgui)
 
 ## Build
 
-```sh
-sh bundle.sh build:debug
+```bash
+bash bundle.sh build:debug
 # debug build
 
-sh bundle.sh build:release
+bash bundle.sh build:release
 # release build, requires luajit
 # if on Linux, use `sudo apt-get install luajit`
 # if on Windows, put your luajit compiler in your project directory under `luajit`
