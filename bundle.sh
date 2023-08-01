@@ -86,7 +86,7 @@ build_debug() {
 }
 
 if [[ $# -eq 0 ]]; then
-    echo "No arguments provided. Use --help for usage information."
+    echo "No arguments provided. Use `help` for usage information."
     exit 1
 fi
 
@@ -109,7 +109,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         *)
-            echo "Invalid option: $1. Use --help for usage information."
+            echo "Invalid option: $1. Use `help` for usage information."
             exit 1
             ;;
     esac
