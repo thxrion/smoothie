@@ -9,9 +9,13 @@ mimgui, see [github.com/THE-FYP/mimgui](https://github.com/THE-FYP/mimgui)
 Requires [https://github.com/LuaDist/squish](https://github.com/LuaDist/squish) and [https://github.com/LuaJIT/LuaJIT](https://github.com/LuaJIT/LuaJIT) to be installed
 
 ```bash
-bash bundle.sh build:debug
-# or
-bash bundle.sh build:release
+mkdir -p ./build
+squish
+
+# for release build
+
+luajit -b ./build/smoothie.lua ./build/smoothie.luac
+
 ```
 
 ## About
