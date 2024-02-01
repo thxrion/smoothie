@@ -1,3 +1,8 @@
+script_name("smoothie")
+script_author("THERION")
+script_description("First ever non-cringe smooth aimbot")
+script_url("https://gitlab.com/modarnya")
+
 imgui = require("mimgui")
 
 require("moonloader")
@@ -6,15 +11,15 @@ ffi = require("ffi")
 memory = require("memory")
 windowsMessages = require("windows.message")
 
--- @import <./modules/cdefs.lua>
--- @import <./modules/common.lua>
--- @import <./modules/bone.lua>
--- @import <./modules/camera.lua>
--- @import <./modules/weapon.lua>
--- @import <./modules/collision.lua>
+require("cdefs")
+require("common")
+require("bone")
+require("camera")
+require("weapon")
+require("collision")
 
--- @import <./modules/config.lua>
--- @import <./modules/gui.lua>
+require("config")
+require("gui")
 
 local function isPedValidAsTarget(ped)
       if not doesCharExist(ped) then

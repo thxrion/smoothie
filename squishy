@@ -1,0 +1,13 @@
+Main "modules/init.lua"
+
+Module "cdefs" "modules/cdefs.lua"
+Module "common" "modules/common.lua"
+Module "bone" "modules/bone.lua"
+Module "camera" "modules/camera.lua"
+Module "weapon" "modules/weapon.lua"
+Module "collision" "modules/collision.lua"
+
+Module "config" "modules/config.lua"
+Module "gui" "modules/gui.lua"
+
+Output "build/smoothie.lua"

@@ -51,3 +51,5 @@ function config.getWeaponConfig()
       local weaponType = weapon.getType()
       return config.weaponTypeSpecific[weaponType]
 end
+
+return config
