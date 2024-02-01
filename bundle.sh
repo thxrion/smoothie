@@ -6,15 +6,6 @@ build() {
     squish
 }
 
-compile() {
-    if [[ "$OSTYPE" == "linux-gnu" ]]; then
-        luajit -b "./${BUILD_PATH}" "./${BUILD_PATH}"
-    else
-        cd luajit
-        ./luajit.exe -b "../${BUILD_PATH}" "../${BUILD_PATH}"
-    fi
-}
-
 if [[ $# -eq 0 ]]; then
     echo "No arguments provided. Use `help` for usage information."
     exit 1
@@ -32,7 +23,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         build:release)
             build
-            compile
+            luajit -b "./${BUILD_PATH}" "./${BUILD_PATH}"
             exit 0
             ;;
         build:debug)

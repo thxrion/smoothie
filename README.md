@@ -6,14 +6,12 @@ mimgui, see [github.com/THE-FYP/mimgui](https://github.com/THE-FYP/mimgui)
 
 ## Build
 
+Requires [https://github.com/LuaDist/squish](https://github.com/LuaDist/squish) and [https://github.com/LuaJIT/LuaJIT](https://github.com/LuaJIT/LuaJIT) to be installed
+
 ```bash
 bash bundle.sh build:debug
-# debug build
-
+# or
 bash bundle.sh build:release
-# release build, requires luajit
-# if on Linux, use `sudo apt-get install luajit`
-# if on Windows, put your luajit compiler in your project directory under `luajit`
 ```
 
 ## About
