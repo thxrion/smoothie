@@ -52,6 +52,16 @@ local function getCrosshairRotation()
       return convertCartesianCoordinatesToSpherical(crosshair)
 end
 
+local function calculateAngleBetweenTwoPoinsOnCircle(a1, a2)
+      local diff = a1 - a2
+      
+      if diff > math.pi then
+            return math.pi - diff
+      end
+
+      return diff
+end
+
 function camera.getCoordinates3D()
       return vector3D(getActiveCameraCoordinates())
 end
@@ -97,8 +107,8 @@ function camera.moveCrosshairTowardsPoint(point, k)
       local cameraPhi, cameraTheta = getCameraRotation()
       local crosshairPhi, crosshairTheta = getCrosshairRotation()
 
-      cameraPhi = cameraPhi + 1 / k * (pointPhi - crosshairPhi)
-      cameraTheta = cameraTheta + 1 / k * (pointTheta - crosshairTheta)
+      cameraPhi = cameraPhi + 1 / k * calculateAngleBetweenTwoPoinsOnCircle(pointPhi, crosshairPhi)
+      cameraTheta = cameraTheta + 1 / k * calculateAngleBetweenTwoPoinsOnCircle(pointTheta, crosshairTheta)
 
       setCameraRotation(cameraPhi, cameraTheta)
 end
